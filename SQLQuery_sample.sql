@@ -1,4 +1,4 @@
-/****** Object:  StoredProcedure [dbo].[ETL_1100_1_FACT_1100_AOPR]    Script Date: 2024-01-10 ¿ÀÈÄ 1:33:45 ******/
+/****** Object:  StoredProcedure [dbo].[ETL_1100_1_FACT_1100_AOPR]    Script Date: 2024-01-10 Â¿Ã€ÃˆÃ„ 1:33:45 ******/
 SET ANSI_NULLS ON
 GO
 
@@ -8,7 +8,7 @@ GO
 /*
 ETL_1100_1_FACT_1100_AOPR.SQL
 */
-CREATE   PROC [dbo].[ETL_1100_1_FACT_1100_AOPR](@P_REPLACE BIT = 0)
+CREATE OR ALTER  PROC [dbo].[ETL_1100_1_FACT_1100_AOPR](@P_REPLACE BIT = 0)
 AS
 BEGIN
     BEGIN TRY
@@ -159,7 +159,7 @@ BEGIN
 
 
 		------------------
-		--FACT_1100_AOPR --´©ÀûÀÌ¸é (@P_REPLACE BIT = 1)
+		--FACT_1100_AOPR --Â´Â©Ã€Ã»Ã€ÃŒÂ¸Ã© (@P_REPLACE BIT = 1)
 		------------------
 		MERGE INTO FACT_1100_AOPR AS AA
 		USING(
