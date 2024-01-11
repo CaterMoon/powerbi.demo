@@ -1,0 +1,1379 @@
+{
+  "compatibilityLevel": 1567,
+  "model": {
+    "annotations": [
+      {
+        "name": "__PBI_TimeIntelligenceEnabled",
+        "value": "0"
+      },
+      {
+        "name": "PBIDesktopVersion",
+        "value": "2.124.1554.0 (23.12)"
+      },
+      {
+        "name": "PBI_QueryOrder",
+        "value": "[\"Events\",\"PerfLogFilePath\",\"Metadata\",\"RawEvents\",\"EventTypes\"]"
+      },
+      {
+        "name": "PBI_ProTooling",
+        "value": "[\"DevMode\"]"
+      }
+    ],
+    "culture": "en-US",
+    "cultures": [
+      {
+        "name": "en-US",
+        "linguisticMetadata": {
+          "content": {
+            "DynamicImprovement": "HighConfidence",
+            "Entities": {
+              "metadata.filepath": {
+                "Definition": {
+                  "Binding": {
+                    "ConceptualEntity": "Metadata",
+                    "ConceptualProperty": "FilePath"
+                  }
+                },
+                "State": "Generated",
+                "Terms": [
+                  {
+                    "File Path": {
+                      "Source": {
+                        "Agent": "PowerBI.VisualColumnRename",
+                        "Type": "External"
+                      },
+                      "State": "Suggested",
+                      "Weight": 0.9
+                    }
+                  }
+                ]
+              }
+            },
+            "Language": "en-US",
+            "Version": "2.0.0"
+          },
+          "contentType": "json"
+        }
+      }
+    ],
+    "dataAccessOptions": {
+      "legacyRedirects": true,
+      "returnErrorValuesAsNull": true
+    },
+    "defaultPowerBIDataSourceVersion": "powerBI_V3",
+    "expressions": [
+      {
+        "name": "PerfLogFilePath",
+        "annotations": [
+          {
+            "name": "PBI_ResultType",
+            "value": "Text"
+          }
+        ],
+        "expression": "\"C:\\Temp\\PowerBIPerformanceData.json\" meta [IsParameterQuery=true, Type=\"Text\", IsParameterQueryRequired=true]",
+        "kind": "m",
+        "lineageTag": "b37d847b-02bb-4b34-b88b-0e28fe172d72"
+      },
+      {
+        "name": "RawEvents",
+        "annotations": [
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "expression": [
+          "let",
+          "    Source = Json.Document(File.Contents(PerfLogFilePath)),",
+          "    events = Source[events],",
+          "    #\"Converted to Table\" = Table.FromList(events, Splitter.SplitByNothing(), null, null, ExtraValues.Error),",
+          "    #\"Expanded Column1\" = Table.ExpandRecordColumn(#\"Converted to Table\", \"Column1\", {\"name\", \"component\", \"start\", \"id\", \"metrics\", \"end\", \"parentId\"}, {\"name\", \"component\", \"start\", \"id\", \"metrics\", \"end\", \"parentId\"}),",
+          "    #\"Expanded metrics\" = Table.ExpandRecordColumn(#\"Expanded Column1\", \"metrics\", {\"ActualQueryDuration\", \"DataReadDuration\", \"QueryText\", \"RowCount\", \"RowsRead\", \"sourceLabel\", \"status\", \"visualTitle\", \"changeDetectionMeasure\", \"visualId\", \"visualType\"}, {\"ActualQueryDuration\", \"DataReadDuration\", \"QueryText\", \"RowCount\", \"RowsRead\", \"sourceLabel\", \"status\", \"visualTitle\", \"changeDetectionMeasure\", \"visualId\", \"visualType\"}),",
+          "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Expanded metrics\",{{\"name\", type text}, {\"component\", type text}, {\"start\", type datetimezone}, {\"id\", type text}, {\"ActualQueryDuration\", type number}, {\"DataReadDuration\", type number}, {\"QueryText\", type text}, {\"RowCount\", Int64.Type}, {\"RowsRead\", Int64.Type}, {\"sourceLabel\", type text}, {\"status\", type text}, {\"visualTitle\", type text}, {\"end\", type datetimezone}, {\"parentId\", type text}, {\"changeDetectionMeasure\", type text}, {\"visualId\", type text}, {\"visualType\", type text}}),",
+          "    #\"Sorted Rows\" = Table.Sort(#\"Changed Type\",{{\"start\", Order.Ascending}}),",
+          "    #\"Added Custom\" = Table.AddColumn(#\"Sorted Rows\", \"event_type\", each [component] & \"_\" & [name], type text),",
+          "    Buffered = Table.Buffer(#\"Added Custom\")",
+          "in",
+          "    Buffered"
+        ],
+        "kind": "m",
+        "lineageTag": "c8036dfc-b46f-4f61-8c07-177d91cf76c6"
+      }
+    ],
+    "relationships": [
+      {
+        "name": "53dce4a7-5ccd-4ff5-9d18-b28eeb2964f1",
+        "fromColumn": "event_type",
+        "fromTable": "Events",
+        "toColumn": "event_type",
+        "toTable": "EventTypes"
+      },
+      {
+        "name": "317087d0-3135-4a07-afdf-00620567c3c0",
+        "fromColumn": "event_type",
+        "fromTable": "EventEdges",
+        "toColumn": "event_type",
+        "toTable": "EventTypes"
+      },
+      {
+        "name": "20650ecd-3afe-4261-b95c-6f5703846df5",
+        "fromColumn": "Root",
+        "fromTable": "Events",
+        "toColumn": "Root",
+        "toTable": "RootActions"
+      },
+      {
+        "name": "9c852284-43a6-4926-babf-97cba4869636",
+        "fromColumn": "Root",
+        "fromTable": "EventEdges",
+        "toColumn": "Root",
+        "toTable": "RootActions"
+      }
+    ],
+    "sourceQueryCulture": "en-US",
+    "tables": [
+      {
+        "name": "Events",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "cc2f8b08-e0cb-478d-9797-eced2f839e64"
+          },
+          {
+            "name": "LinkedQueryName",
+            "value": "Events"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          }
+        ],
+        "columns": [
+          {
+            "name": "name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "IsHidden"
+              }
+            ],
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "3df8f838-d899-4e5f-8dd6-4388d0917857",
+            "sourceColumn": "name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "component",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "IsHidden"
+              }
+            ],
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "09bf1241-cd64-45bb-8ae1-8e28c43878c5",
+            "sourceColumn": "component",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "start",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "lineageTag": "55b407af-2cf4-4c6a-ba29-bfcec044dd31",
+            "sourceColumn": "start",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "id",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "8b9b3e25-e37a-41d9-94a1-195bfa0f7f29",
+            "sourceColumn": "id",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ActualQueryDuration",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "664513b5-76ad-4677-986c-43584cd82d75",
+            "sourceColumn": "ActualQueryDuration",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "DataReadDuration",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "lineageTag": "446123a3-5c56-40a4-be39-f1f2f19184c3",
+            "sourceColumn": "DataReadDuration",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "QueryText",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "ea4aa5da-8682-4c25-b233-503f5fb02435",
+            "sourceColumn": "QueryText",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RowCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "b76e497e-cf9d-4847-ae2c-41870e9986a0",
+            "sourceColumn": "RowCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "RowsRead",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "lineageTag": "8232cf54-f678-4e52-88c7-0370b9020b5a",
+            "sourceColumn": "RowsRead",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "sourceLabel",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "09fff8ca-60a3-489a-a365-a559fd6b0883",
+            "sourceColumn": "sourceLabel",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "status",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d26dd784-dbc7-4532-b86a-eca4d0dc5312",
+            "sourceColumn": "status",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "visualTitle",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "a38a6e04-0233-4281-80b8-07231d3b1d74",
+            "sourceColumn": "visualTitle",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "end",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "lineageTag": "daad0165-7ae6-4d79-927c-ba1146446dd6",
+            "sourceColumn": "end",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "DurationMs",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "IF(ISBLANK([end]), BLANK(), ([end] - [start]) * 86400000)",
+            "isDataTypeInferred": true,
+            "lineageTag": "02c82753-bfeb-46d2-a151-15f8e92f84ec",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "StartMs",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "[start] * 86400000",
+            "isDataTypeInferred": true,
+            "lineageTag": "1b1ad2ff-d834-46fc-a6ea-5e92b48d595e",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "EndMs",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "[end] * 86400000",
+            "isDataTypeInferred": true,
+            "lineageTag": "a011e1b5-45c0-49b3-93ed-d29341cc5d9b",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "parentId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2c46f654-a1c1-47b4-b4e7-414fed4bf790",
+            "sourceColumn": "parentId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "Path",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "Path([Index], [ParentIndex])",
+            "isDataTypeInferred": true,
+            "lineageTag": "87e9c717-6228-42cd-bdc0-3cbbe676fb3a",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Root",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "expression": "PATHITEM([Path], 1, INTEGER)",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "lineageTag": "549dd85c-0d23-4262-b11d-311e91ca8b3f",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Rank",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "expression": "RANKX(Events, [StartMs] & [Path], [StartMs] & [Path], ASC, Dense)",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "lineageTag": "36ef4628-3263-4f82-b084-2e40748bbcfa",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "RawIndex",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "User"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "lineageTag": "a9d6a298-5963-457a-87f1-085ec8f6fd88",
+            "sourceColumn": "RawIndex",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "ParentIndex",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "string",
+            "expression": "LOOKUPVALUE([Index], [id], [parentId])",
+            "lineageTag": "8b4ebb7e-346b-4524-9eb7-051ed655a878",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "Index",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": "FORMAT([RawIndex], \"000\")",
+            "isDataTypeInferred": true,
+            "lineageTag": "0cd82a01-85fa-4757-8d97-085db47df51f",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "TreeLabel",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "expression": [
+              "",
+              "VAR _SpaceChar = UNICHAR(160)",
+              "VAR _Indent = REPT(_SpaceChar, [PathLength] * 4)",
+              "RETURN [Index] & _Indent & [component] & \": \" & [name]"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "789a430c-31a3-4c80-b8b4-5a6fae9b538e",
+            "sortByColumn": "Path",
+            "summarizeBy": "none",
+            "type": "calculated"
+          },
+          {
+            "name": "MS Since Visual Start",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "VAR _Root = [Root]",
+              "RETURN [StartMs] - CALCULATE(MIN('Events'[StartMs]), FILTER(ALL('Events'), [Root] = _Root)) "
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "58d06ca3-00d4-4a49-bd7f-0f3e3c84efda",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "PathLength",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "expression": "PATHLENGTH([Path])",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "lineageTag": "0146d0c6-91cb-4177-a25e-9ee5095c33b1",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "event_type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "IsHidden"
+              }
+            ],
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "35782073-26bf-4094-b736-1c7fadc25a71",
+            "sourceColumn": "event_type",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "changeDetectionMeasure",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "88c9469e-bb6c-4f4b-a958-5c329cd7d7c8",
+            "sourceColumn": "changeDetectionMeasure",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "visualId",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "d0120ee4-6947-4a4b-8207-d00c92354951",
+            "sourceColumn": "visualId",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "visualType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "f036f846-2b43-4469-b6f6-fc5d971cd39d",
+            "sourceColumn": "visualType",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "0e5f0d45-dd93-4ed6-9d13-187458faffca",
+        "partitions": [
+          {
+            "name": "Events-ee0a1143-66ca-4af9-bb5d-9f4fd8d4afec",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    #\"Added Index\" = Table.AddIndexColumn(RawEvents, \"Index\", 0, 1),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Added Index\",{{\"Index\", \"RawIndex\"}}),",
+                "    #\"Removed Duplicates\" = Table.Distinct(#\"Renamed Columns\", {\"id\"})",
+                "in",
+                "    #\"Removed Duplicates\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "EventEdges",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "86e51626ad25488293ecaf560afaae2e"
+          }
+        ],
+        "columns": [
+          {
+            "name": "id",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "b689e062-0863-4966-93b9-4d48b77b95d5",
+            "sourceColumn": "[id]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "timestamp",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "dateTime",
+            "formatString": "General Date",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "e754c96e-1aaa-4ed3-b762-1d4402cf6532",
+            "sourceColumn": "[timestamp]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "marker",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "a21145b8-8f5a-4d6c-8036-f339f8bca934",
+            "sourceColumn": "[marker]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "timestampMs",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": "[timestamp] * 86400000",
+            "isDataTypeInferred": true,
+            "lineageTag": "fce192d6-e3b9-4403-887f-7ffa772326b3",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "MS Since Root Start",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "VAR _Root = [Root]",
+              "RETURN [timestampMs] - CALCULATE(MIN('EventEdges'[timestampMs]), FILTER(ALL(EventEdges), [Root] = _Root)) "
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "622d0052-33e4-40ee-89f5-c5bb23f3ad43",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Root",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "74f8a328-339c-44ae-9f13-3d1d52771245",
+            "sourceColumn": "[Root]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Rank",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "expression": [
+              "RANKX(EventEdges, [timestampMs] & [EdgePath], [timestampMs] & [EdgePath], ASC, Dense) // + ([TreeDepth] / 10.0) + (IF([marker] = \"End\", 1, 0) / 100.0)",
+              "//Rank = RANKX(EventEdges, [EdgePath], [EdgePath], ASC, Dense)"
+            ],
+            "formatString": "0",
+            "lineageTag": "ea324a1e-579f-4b84-bef6-5c4e2b7aef8a",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Duration",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "fd2b75c2-6714-4d9c-8494-d466871f0051",
+            "sourceColumn": "[Duration]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "EdgePath",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "f5986537-e43c-4ac2-9250-fc9b026abedb",
+            "sourceColumn": "[EdgePath]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "event_type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isHidden": true,
+            "isNameInferred": true,
+            "lineageTag": "aeff8d3f-d57e-4838-8887-b33d59da2e86",
+            "sourceColumn": "[event_type]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "2b66a693-f4c9-490e-b09c-38b2ac22beca",
+        "measures": [
+          {
+            "name": "MS Since Previous Edge",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": [
+              "",
+              "VAR _Root = SELECTEDVALUE(EventEdges[Root])",
+              "VAR _Rank = MIN(EventEdges[Rank])",
+              "VAR _TimestampMs = MIN(EventEdges[timestampMs])",
+              "VAR _PreviousTimestampMs = CALCULATE(MAX('EventEdges'[timestampMs]), FILTER(ALL(EventEdges), ISBLANK(_Root) || [Root] = _Root && [Rank] < _Rank))",
+              "RETURN IF(ISBLANK(_TimestampMs), BLANK(), IF(ISBLANK(_PreviousTimestampMs), 0, _TimestampMs - _PreviousTimestampMs))"
+            ],
+            "lineageTag": "97430265-749c-4a5c-936a-95292b13faa6"
+          },
+          {
+            "name": "MS Since First Edge",
+            "annotations": [
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "expression": [
+              "",
+              "VAR _CurrentTimestamp = MIN('EventEdges'[timestampMs])",
+              "RETURN IF(ISBLANK(_CurrentTimestamp), BLANK(), _CurrentTimestamp - CALCULATE(MIN('EventEdges'[timestampMs]), ALLSELECTED(EventEdges)))"
+            ],
+            "lineageTag": "e6749954-20d1-4b9a-81cf-16ec2ee669ab"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "EventEdges-c327a45f-1615-4e4b-86de-44ec0ab6ffdc",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "UNION(",
+                "            SELECTCOLUMNS(",
+                "                VALUES('Events'),",
+                "                \"event_type\", 'Events'[event_type],",
+                "                \"id\", 'Events'[id],",
+                "                \"EdgePath\", 'Events'[Path] & \"|000-Begin\",",
+                "                \"Root\", 'Events'[Root],",
+                "                \"timestamp\", 'Events'[start],",
+                "                \"marker\", \"Begin\",",
+                "                \"Duration\", BLANK()",
+                "            ),",
+                "            SELECTCOLUMNS(",
+                "                FILTER(VALUES('Events'), NOT(ISBLANK([end]))),",
+                "                \"event_type\", 'Events'[event_type],",
+                "                \"id\", 'Events'[id],",
+                "                \"EdgePath\", 'Events'[Path] & \"|999-End\",",
+                "                \"Root\", 'Events'[Root],",
+                "                \"timestamp\", 'Events'[end],",
+                "                \"marker\", \"End\",",
+                "                \"Duration\", 'Events'[DurationMs]",
+                "            )",
+                "        )"
+              ],
+              "type": "calculated"
+            }
+          }
+        ]
+      },
+      {
+        "name": "RootActions",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "7c85ccaed697408896877d348a34bba3"
+          }
+        ],
+        "columns": [
+          {
+            "name": "Root",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "int64",
+            "formatString": "0",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "971ea2f2-d564-49ce-bab2-6ab33d70a3e9",
+            "sourceColumn": "[Root]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Order",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "aede38ca-8ac7-48ab-9306-8fdcb552c9c5",
+            "sourceColumn": "[Order]",
+            "summarizeBy": "sum",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "Time DAX Query (ms)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "CALCULATE(MAX(Events[EndMs]) - MIN(Events[StartMs]), KEEPFILTERS(FILTER(Events, [component] = \"DSE\" && [name] = \"Execute DAX Query\")))"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "a4799146-b207-43ab-a172-75be5a6c6dae",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Time Visual Display (ms)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "CALCULATE(MAX(Events[EndMs]) - MIN(Events[StartMs]), KEEPFILTERS(FILTER(Events, [component] = \"Report Canvas\" && [name] = \"Render\")))"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "225b7297-67cf-4b83-a43b-ccc1cb1e94b4",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Time Other (ms)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "[Time Total (ms)] - [Time DAX Query (ms)] - COALESCE([Time Visual Display (ms)], 0)"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "7ab695b0-f4c3-4b02-998d-6aa82b0fd216",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Time Total (ms)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "CALCULATE(",
+              "    VAR _Max = MAX(Events[EndMs])",
+              "    VAR _Min = MIN(Events[StartMs])",
+              "    RETURN IF(ISBLANK(_Max), BLANK(), _Max - _Min), ",
+              "    KEEPFILTERS(FILTER(Events, [RawIndex] = [Root])))"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "30d8b3b8-8492-4690-8ccc-5906e0ce3d57",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Time Direct Query (ms)",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "dataType": "double",
+            "expression": [
+              "",
+              "CALCULATE(MAX(Events[EndMs]) - MIN(Events[StartMs]), KEEPFILTERS(FILTER(Events, [component] = \"AS\" && [name] = \"Execute Direct Query\")))"
+            ],
+            "isDataTypeInferred": true,
+            "lineageTag": "391b6d3a-9a37-41c4-a7ef-d63a4b36d6e5",
+            "summarizeBy": "sum",
+            "type": "calculated"
+          },
+          {
+            "name": "Action Label",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "91281e64-5051-4ba4-860a-924bce68042a",
+            "sortByColumn": "Order",
+            "sourceColumn": "[Action Label]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          },
+          {
+            "name": "ActionType",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "isDataTypeInferred": true,
+            "isNameInferred": true,
+            "lineageTag": "c2c0a885-75b9-453f-a89e-d416fae17941",
+            "sourceColumn": "[ActionType]",
+            "summarizeBy": "none",
+            "type": "calculatedTableColumn"
+          }
+        ],
+        "lineageTag": "eaa7ca47-a139-41e2-8733-8a4e74998a19",
+        "partitions": [
+          {
+            "name": "RootActions-495f4582-4605-4a2f-bd52-15a5a24d2973",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "",
+                "VAR _Roots = ADDCOLUMNS(",
+                "    FILTER(",
+                "    Events, ",
+                "    [RawIndex] = [Root]),",
+                "    \"ActionType\", SWITCH(TRUE, ",
+                "                    [component] = \"Report Canvas\" && [name] = \"Visual Container Lifecycle\", \"Visual\",",
+                "                    [component] = \"Report Canvas\" && [name] = \"User Action\", \"User Action\",",
+                "                    [component] = \"Change Detection\" && [name] = \"Execute Change Detection\", \"Change Detection\",",
+                "                    \"Other\"",
+                "                    )",
+                "    )",
+                "RETURN SELECTCOLUMNS(",
+                "    _Roots,",
+                "    \"Root\", [Root],",
+                "    \"ActionType\", [ActionType],",
+                "    \"Action Label\", [Index] & \" \" & SWITCH([ActionType], ",
+                "                                \"Visual\", \"Visual: \" & [visualTitle],",
+                "                                \"User Action\", \"User Action: \" & IF(LEFT([sourceLabel], 11) = \"UserAction_\", RIGHT([sourceLabel], LEN([sourceLabel]) - 11), [sourceLabel]),",
+                "                                \"Change Detection\", \"Change Detection: \" & [changeDetectionMeasure],",
+                "                                [ActionType]",
+                "                                ),",
+                "    \"Order\", [Rank] + IF([name] = \"User Action\", 0, 0.1)",
+                "    )"
+              ],
+              "type": "calculated"
+            }
+          }
+        ]
+      },
+      {
+        "name": "Metadata",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "5d340484-088d-4040-a17d-ea50718d842c"
+          },
+          {
+            "name": "LinkedQueryName",
+            "value": "Metadata"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          }
+        ],
+        "columns": [
+          {
+            "name": "FilePath",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "3b60d5e2-fda4-422d-a2d0-a8cc7a4f53d9",
+            "sourceColumn": "FilePath",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "RawEventCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "lineageTag": "11037ba5-f471-49f1-b158-35052fc29861",
+            "sourceColumn": "RawEventCount",
+            "summarizeBy": "sum"
+          },
+          {
+            "name": "UniqueEventCount",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              },
+              {
+                "name": "PBI_FormatHint",
+                "value": "{\"isGeneralNumber\":true}"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "DataType"
+              }
+            ],
+            "dataType": "int64",
+            "lineageTag": "76bfd6c4-290a-46e3-bb8d-6d005d9a69c0",
+            "sourceColumn": "UniqueEventCount",
+            "summarizeBy": "sum"
+          }
+        ],
+        "lineageTag": "84d8e31c-c2b1-4f6e-97a7-85035d1bb58e",
+        "measures": [
+          {
+            "name": "Data Quality Messages",
+            "expression": [
+              "",
+              "VAR _RawEventCount = SUM('Metadata'[RawEventCount])",
+              "VAR _UniqueEventCount = SUM('Metadata'[UniqueEventCount])",
+              "RETURN IF(_RawEventCount > _UniqueEventCount, \"Export file contains events with duplicate IDs.  Only unique events are shown in this report\", BLANK())"
+            ],
+            "lineageTag": "e578630b-1a0f-4264-a75f-de2fb97530c1"
+          },
+          {
+            "name": "DataStatus",
+            "expression": "IF(ISBLANK([Data Quality Messages]), 0, 1)",
+            "formatString": "0",
+            "lineageTag": "e973f4c9-176f-46fa-8a12-edf344a8c3a7"
+          },
+          {
+            "name": "User Action Count",
+            "expression": "COUNTROWS(FILTER('Events', [component] = \"Report Canvas\" && [name] = \"User Action\"))",
+            "formatString": "0",
+            "lineageTag": "a069faac-9c66-419d-8ee7-2abe4b28b0c5"
+          },
+          {
+            "name": "Visual Update Count",
+            "expression": "COUNTROWS(FILTER('Events', [component] = \"Report Canvas\" && [name] = \"Visual Container Lifecycle\"))",
+            "formatString": "0",
+            "lineageTag": "b940111a-9b7a-4055-950b-20a72394c186"
+          },
+          {
+            "name": "Change Detection Count",
+            "expression": "COUNTROWS(FILTER('Events', [component] = \"Change Detection\" && [name] = \"Execute Change Detection\"))",
+            "formatString": "0",
+            "lineageTag": "1b5fd652-86bb-43fc-92b3-fab278b2f2e1"
+          }
+        ],
+        "partitions": [
+          {
+            "name": "Metadata-d2f210e2-d75b-49bb-b18c-86a5e81bd5cf",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    Source = PerfLogFilePath,",
+                "    #\"Converted to Table\" = #table(1, {{Source}}),",
+                "    #\"Renamed Columns\" = Table.RenameColumns(#\"Converted to Table\",{{\"Column1\", \"FilePath\"}}),",
+                "    #\"Changed Type\" = Table.TransformColumnTypes(#\"Renamed Columns\",{{\"FilePath\", type text}}),",
+                "    #\"Added Custom\" = Table.AddColumn(#\"Changed Type\", \"RawEventCount\", each Table.RowCount(RawEvents), type number),",
+                "    #\"Added Custom1\" = Table.AddColumn(#\"Added Custom\", \"UniqueEventCount\", each Table.RowCount(Events), type number)",
+                "in",
+                "    #\"Added Custom1\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      },
+      {
+        "name": "EventTypes",
+        "annotations": [
+          {
+            "name": "PBI_Id",
+            "value": "fe5d0d65-b8ab-4f0f-810c-209c9fdf51ad"
+          },
+          {
+            "name": "LinkedQueryName",
+            "value": "EventTypes"
+          },
+          {
+            "name": "PBI_ResultType",
+            "value": "Table"
+          },
+          {
+            "name": "PBI_NavigationStepName",
+            "value": "Navigation"
+          }
+        ],
+        "columns": [
+          {
+            "name": "name",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "06eb3b37-cafc-4597-9263-1e2fa007475c",
+            "sourceColumn": "name",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "component",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "dataType": "string",
+            "lineageTag": "2ba17d1e-195a-4acf-881b-74ec4749e399",
+            "sourceColumn": "component",
+            "summarizeBy": "none"
+          },
+          {
+            "name": "event_type",
+            "annotations": [
+              {
+                "name": "SummarizationSetBy",
+                "value": "Automatic"
+              }
+            ],
+            "changedProperties": [
+              {
+                "property": "IsHidden"
+              }
+            ],
+            "dataType": "string",
+            "isHidden": true,
+            "lineageTag": "da5f1f37-9865-41a7-8498-8f55a950162a",
+            "sourceColumn": "event_type",
+            "summarizeBy": "none"
+          }
+        ],
+        "lineageTag": "ed0a1e39-4fb4-42ca-a415-1edd95556188",
+        "partitions": [
+          {
+            "name": "EventTypes-71510dd0-616e-4e0b-a491-182628821961",
+            "mode": "import",
+            "source": {
+              "expression": [
+                "let",
+                "    SelectedColumns = Table.SelectColumns(RawEvents, {\"name\", \"component\", \"event_type\"}),",
+                "    #\"Removed Duplicates\" = Table.Distinct(SelectedColumns, {\"event_type\"})",
+                "in",
+                "    #\"Removed Duplicates\""
+              ],
+              "type": "m"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
